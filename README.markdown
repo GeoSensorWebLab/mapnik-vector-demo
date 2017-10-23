@@ -287,6 +287,42 @@ Osm2pgsql took 7s overall
 
 This is a small dataset so it will take under a minute to import.
 
+### Add Indexes for Rendering
+
+When the map rendering engine Mapnik gets a request for a set of tiles, it will iterate through the stylesheet layers and query PostgreSQL for the region and data on those layers. Some of these layers contain large and complex geometries, so PostgreSQL may use slower scans to find the information in the database. This is the source of most of the slow rendering performance with this rendering stack.
+
+To help some of these rendering queries, we can add some partial indexes to the database:
+
+```sh
+$ cd ~
+$ sudo psql -U import osm -f /vagrant/contrib/pg-04-indexes.sql
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+```
+
+On a large OSM database the index creation can take hours or days to complete. Fortunately the small extract here only takes a few seconds. Next we will do some clean up in the database, to [remove dead rows][PostgreSQL Vacuum] and [update the statistics][PostgreSQL Statistics] for the PostgreSQL query planner:
+
+```sh
+$ sudo psql -U import osm -f "/vagrant/contrib/pg-05-vacuum.sql"
+```
+
+This will take a few seconds on this small extract, or for a planet file an entire day. Note that during this process the tables will be locked and any OSM database update processes will have to wait until the VACUUM is finished. In an actively updated OSM database, running a VACUUM will reclaim a noticeable amount of space every few months.
+
+[PostgreSQL Vacuum]: https://www.postgresql.org/docs/9.6/static/sql-vacuum.html
+[PostgreSQL Statistics]: https://www.postgresql.org/docs/9.6/static/sql-analyze.html
+
+## Set Up the Stylesheet
+
 ## Starting the Tile Server
 
 ## Previewing Tiles
