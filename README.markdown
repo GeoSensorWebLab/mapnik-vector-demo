@@ -114,7 +114,7 @@ Make sure GDAL 2.1 or newer is installed, as mis-matches between GDAL versions c
 
 [UbuntuGIS PPA]: https://launchpad.net/~ubuntugis/+archive/ubuntu/ppa
 
-## Install PostGIS
+### Install PostGIS
 
 Now we can install PostGIS, which will detect GDAL and use that for some calculations.
 
@@ -187,3 +187,47 @@ LINE 1: CREATE TABLE public.test (); DROP TABLE public.test
 ```
 
 This means `import` role can create DB objects, but `render` role cannot.
+
+### Install OSM2PGSQL
+
+[`osm2pgsql`] is one of the main tools for importing OpenStreetMap data into a PostgreSQL database.
+
+```sh
+$ sudo apt install -y osm2pgsql
+$ osm2pgsql --version
+osm2pgsql SVN version 0.88.1 (64bit id space)
+```
+
+For some reason, it also sets up PostgreSQL 9.6, so turn that DB off as we won't use it:
+
+```
+$ pg_lsclusters
+Ver Cluster Port Status Owner    Data directory               Log file
+9.6 main    5433 online postgres /var/lib/postgresql/9.6/main /var/log/postgresql/postgresql-9.6-main.log
+10  main    5432 online postgres /var/lib/postgresql/10/main  /var/log/postgresql/postgresql-10-main.log
+$ sudo pg_dropcluster 9.6 main --stop
+```
+
+[`osm2pgsql`]: https://github.com/openstreetmap/osm2pgsql
+
+### Install Node.js and Tilestrata
+
+For serving our raster and vector tiles, we will use [Tilestrata] which runs on Node.js. We can install version 8 for Ubuntu:
+
+```sh
+$ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+$ sudo apt install -y nodejs
+$ node --version
+v8.7.0
+$ sudo chown -R $USER:$(id -gn $USER) /home/vagrant/.config
+$ sudo npm install --unsafe-perm -g tilestrata tilestrata-mapnik tilestrata-disk tilestrata-vtile tilestrata-headers mapnik
+```
+
+[Tilestrata]: https://github.com/naturalatlas/tilestrata
+
+## Loading Data
+
+## Starting the Tile Server
+
+## Previewing Tiles
+
