@@ -1,0 +1,6 @@
+CREATE DATABASE osm WITH OWNER geo ENCODING 'UTF-8';
+
+\c osm
+CREATE EXTENSION hstore;
+CREATE EXTENSION postgis;
+ALTER TABLE spatial_ref_sys OWNER TO geo;
