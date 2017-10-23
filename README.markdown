@@ -323,6 +323,39 @@ This will take a few seconds on this small extract, or for a planet file an enti
 
 ## Set Up the Stylesheet
 
+I have created a fork of the openstreetmap-carto stylesheet in this repository that is optimized for this tutorial. As this tutorial focuses on a different region than the general OSM site, I cut out some unused stuff.
+
+Start by copying the stylesheet to the home directory.
+
+```sh
+$ cp -r /vagrant/carto-style ~/carto-style
+```
+
+Now install the fonts needed for the stylesheet:
+
+```sh
+$ sudo apt install -y fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted \
+  fonts-hanazono ttf-unifont
+```
+
+We will use a symlink to make the shapefile data available for the stylesheet.
+
+```sh
+$ cd ~/carto-style
+$ ln -s /home/vagrant/data data
+```
+
+And then generate the Mapnik XML files for rendering:
+
+```sh
+$ sudo npm install -g carto
+$ carto project.mml > project.xml
+```
+
+TODO: Update this with a EPSG:3573 MML file
+
+### Process the Shapefiles
+
 ## Starting the Tile Server
 
 ## Previewing Tiles
