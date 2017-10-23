@@ -52,6 +52,7 @@ Start by updating and upgrading the default libraries on the system.
 ```sh
 $ sudo apt update
 $ sudo apt upgrade -y
+$ sudo apt install -y zip unzip
 ```
 
 [PostgreSQL]: https://www.postgresql.org
@@ -226,6 +227,65 @@ $ sudo npm install --unsafe-perm -g tilestrata tilestrata-mapnik tilestrata-disk
 [Tilestrata]: https://github.com/naturalatlas/tilestrata
 
 ## Loading Data
+
+For our region of interest, Nunavut, we will download an OpenStreetMap database extract as well as shapefiles from [Natural Earth Data].
+
+OpenStreetMap has an open database of all the data submitted by its users, and that data is available under the [Open Database License](https://opendatacommons.org/licenses/odbl/summary/) (ODbL). This means we can download and re-use the data for free, as long as we (a) attribute OpenStreetMap contributors, (b) make available our copy of the OpenStreetMap database, (c) always provide an un-encumbered copy of the database if we redistribute the database.
+
+We will not be redistributing the database, and we can provide the extract files source to anyone that requests it. We will also keep our copy of the planet database extract in case the original source is not online. We will also ensure that our maps correctly attribute OpenStreetMap contributors.
+
+The [entire planet database for OpenStreetMap][OSM Planet] is available in multiple formats, from a 37 GB Protocol-Buffer File (PBF) to a 60 GB XML file. We will instead use a small extract for our area of interest.
+
+If you are thinking of trying the entire planet database with this tutorial, please reconsider as it will (a) take literal *days* to import, (b) require hundreds of GB of storage space for the database and indexes, and (c) be a huge waste of time if the import fails.
+
+Our source for the extract will be [GeoFabrik], specifically [Nunavut].
+
+```sh
+$ mkdir ~/data
+$ cd ~/data
+$ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_bathymetry_all.zip
+15MB
+$ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_glaciated_areas.zip
+1.6MB
+$ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_lakes.zip
+1.7MB
+$ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_lakes_north_america.zip
+200KB
+$ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
+44KB
+
+$ wget http://download.geofabrik.de/north-america/canada/nunavut-latest.osm.pbf
+91MB
+```
+
+Then we can extract the shapefiles. Note that some of the zip files aren't in folders, so we will extract into new folders to avoid a giant mess of files.
+
+```sh
+$ unzip ne_10m_bathymetry_all.zip
+$ unzip -d ne_10m_glaciated_areas ne_10m_glaciated_areas.zip
+$ unzip -d ne_10m_lakes ne_10m_lakes.zip
+$ unzip -d ne_10m_lakes_north_america ne_10m_lakes_north_america.zip
+$ unzip -d ne_110m_admin_0_boundary_lines_land ne_110m_admin_0_boundary_lines_land.zip
+```
+
+[GeoFabrik]: https://download.geofabrik.de
+[Natural Earth Data]: http://www.naturalearthdata.com/
+[Nunavut]: https://download.geofabrik.de/north-america/canada/nunavut.html
+[OSM Planet]: https://planet.osm.org
+
+### Importing OSM Data
+
+This import uses the local socket for Postgres, creates a NEW database import on the "osm" database, uses 500 MB for the import cache, uses 2 import processes (don't use too many as it might require too much RAM), imports only the columns set in the default osm2pgsql style file while additional tag data is stored in Postgres hstore, use multi-geometry postgres features, and print verbose status during the import.
+
+```sh
+$ sudo osm2pgsql --host /var/run/postgresql --create --database osm \
+  --username import -C 500 --number-processes 2 \
+  --style /usr/share/osm2pgsql/default.style --hstore -E 4326 -G -v \
+  ~/data/nunavut-latest.osm.pbf
+Osm2pgsql took 7s overall
+```
+
+This is a small dataset so it will take under a minute to import.
 
 ## Starting the Tile Server
 
