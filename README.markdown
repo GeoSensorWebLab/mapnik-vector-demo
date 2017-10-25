@@ -211,6 +211,30 @@ $ sudo pg_dropcluster 9.6 main --stop
 
 [`osm2pgsql`]: https://github.com/openstreetmap/osm2pgsql
 
+### Install Mapnik
+
+Mapnik is the rendering library that takes stylesheet files and determines how to draw the data into tiles.
+
+```sh
+$ sudo apt install  libboost-filesystem-dev libboost-program-options-dev \
+  libboost-program-options1.58-dev libboost-program-options1.58.0 \
+  libboost-regex1.58-dev libboost-regex1.58.0 libboost-system-dev \
+  libbz2-dev libcairo2-dev \
+  libfreetype6-dev libgeos++-dev libharfbuzz-bin \
+  libharfbuzz-dev libharfbuzz-icu0 liblua5.2-dev \
+  lua5.2 libmapnik3.0 libmapnik-dev mapnik-utils
+$ mapnik-config --version
+3.0.13
+```
+
+Next we need to install the Mapnik vector tile library.
+
+```sh
+$ sudo add-apt-repository ppa:jonathonf/gcc
+$ sudo apt-get update
+$ sudo apt install -y g++-7 gcc-7 libprotoc-dev libprotoc9v5 libprotobuf-dev protobuf-compiler mapnik-vector-tile
+```
+
 ### Install Node.js and Tilestrata
 
 For serving our raster and vector tiles, we will use [Tilestrata] which runs on Node.js. We can install version 8 for Ubuntu:
