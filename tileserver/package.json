@@ -1,0 +1,21 @@
+{
+  "name": "mapnik-tileserver",
+  "version": "0.0.1",
+  "description": "Mapnik Tile Server",
+  "private": "yes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "James Badger <james@jamesbadger.ca>",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "tilestrata": "^2.1.2",
+    "tilestrata-disk": "^0.5.0",
+    "tilestrata-headers": "^0.3.0",
+    "tilestrata-mapnik": "^0.4.1",
+    "tilestrata-vtile": "^0.5.3"
+  }
+}

@@ -380,15 +380,44 @@ $ ln -s /home/vagrant/data data
 And then generate the Mapnik XML files for rendering:
 
 ```sh
-$ sudo npm install -g carto
-$ carto project.mml > project.xml
+$ npm install
+$ node_modules/carto/bin/carto 3573.mml > 3573.xml
 ```
 
-TODO: Update this with a EPSG:3573 MML file
+This `3573.mml` file is a modification of the `openstreetmap-carto` stylesheet where the projection has been changed, some layers have been removed (e.g. Antarctica), and the shapefiles modified to versions that have been re-projected. We haven't done the reprojection yet, and that is the next step.
 
 ### Process the Shapefiles
 
+By default, the shapefiles for the `openstreetmap-carto` style are in either EPSG:3857 (Web Mercator) or EPSG:4326 (WGS84 CRS). It is possible to use these projections directly, and Mapnik will automatically re-project the files to the correct projection. This can cause some odd rendering errors though, as seen below:
+
+(Add image of polygon borders from ArcticWebMap)
+
+This is caused by straight lines between two points being drawn differently in different projections. In EPSG:3857 two parallel lines of different lengths will line up, and there will be no gap. But in EPSG:3573 the parallel lines diverge in the polar projection, causing a gap between the lines to be visible.
+
+To solve this, we will crop the shapefiles to remove unseen geography (Antarctica explodes in EPSG:3573), run a segmentization to add more points along lines (diminishes the gap effect), and then re-project into our target projection.
+
+```sh
+$ cd ~/data
+$ /vagrant/contrib/process_shapefiles.sh .
+```
+
 ## Starting the Tile Server
+
+Tilestrata works by running a web server and serving the tiles from either a disk cache or generating them on-the-fly. I set up a small web server we can re-use.
+
+```sh
+$ cp -r /vagrant/tileserver ~/tileserver
+$ cd ~/tileserver
+$ npm install
+```
+
+Now we can start the Express.js server and try serving tiles:
+
+```sh
+$ node index.js
+```
+
+The server should now be accessible at [http://192.168.33.11:8080/](http://192.168.33.11:8080/). Unfortunately there is no client, so we can't view the tiles without knowing the tile URLs.
 
 ## Previewing Tiles
 

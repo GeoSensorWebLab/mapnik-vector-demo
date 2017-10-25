@@ -1,0 +1,7 @@
+VACUUM FULL VERBOSE ANALYZE planet_osm_line;
+VACUUM FULL VERBOSE ANALYZE planet_osm_nodes;
+VACUUM FULL VERBOSE ANALYZE planet_osm_point;
+VACUUM FULL VERBOSE ANALYZE planet_osm_polygon;
+VACUUM FULL VERBOSE ANALYZE planet_osm_rels;
+VACUUM FULL VERBOSE ANALYZE planet_osm_roads;
+VACUUM FULL VERBOSE ANALYZE planet_osm_ways;
