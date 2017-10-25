@@ -1,4 +1,4 @@
-# Mapnik Tiles with Custom Projections
+# Mapnik Vector Tiles with Custom Projections
 
 In this guide I will show you how to deploy a small web map tile server on a virtual machine. It will serve up tiles in projections that are not the default Web Mercator projection. An OpenLayers client will be used to view the final result.
 
@@ -9,6 +9,8 @@ Here is a preview of the region we will set up in this tutorial:
 ## Background
 
 A majority of the web map providers online all provide tiles in the same map projection: [Web Mercator]. This projection flattens the ellipsoidal Earth into a flat plane, which is then sliced up into tiles for map clients. Web Mercator uses some simplification of formulas to generate its coordinates compared to the standard Mercator projection. The simplification is easier to code and process, but causes significant distortion and inaccuracy as the coordinates move away from the equator. The distortion is so great that the top and bottom of Web Mercator are cut off at 85.05 degrees.
+
+(Image of Greenland/Africa size comparison in Mercator)
 
 For many users, these inaccuracies and distortions make Mercator and Web Mercator projections a poor choice. Fortunately there are [thousands of standardized map projections][epsg.io] covering the entire planet, allowing you to choose one for your region of interest.
 
@@ -402,7 +404,9 @@ $ /vagrant/contrib/process_shapefiles.sh .
 
 ## Starting the Tile Server
 
-Tilestrata works by running a web server and serving the tiles from either a disk cache or generating them on-the-fly. I set up a small web server we can re-use.
+Tilestrata works by running a web server and serving the tiles from either a disk cache or generating them on-the-fly. It even integrates easily with [Express.js], a common web server for Node.js. With Express, we can also serve static files for our tile viewing client in the same process.
+
+This repository includes a small tile server with client libraries, copy it into the VM to get it running.
 
 ```sh
 $ cp -r /vagrant/tileserver ~/tileserver
@@ -410,13 +414,46 @@ $ cd ~/tileserver
 $ npm install
 ```
 
-Now we can start the Express.js server and try serving tiles:
+Now we can start the server and try serving tiles:
 
 ```sh
 $ node index.js
 ```
 
-The server should now be accessible at [http://192.168.33.11:8080/](http://192.168.33.11:8080/). Unfortunately there is no client, so we can't view the tiles without knowing the tile URLs.
+The server should now be accessible at [http://192.168.33.11:8080/](http://192.168.33.11:8080/). 
+
+[Express.js]: http://expressjs.com/
 
 ## Previewing Tiles
 
+Tilestrata will serve tiles using the typical OpenStreetMap XYZ style for URLs.
+
+`http://192.168.33.11:8080/<style>/<zoom>/<x>/<y>.<format>`
+
+In the `index.js` file we can see the style layer is `3573`. This name is arbitrary and doesn't have to correspond to the EPSG number.
+
+Zoom/X/Y are the [standard tile coordinates][Slippy Map].
+
+Format is either `png` for raster tiles, or `pbf` for vector tiles. PNG files can be previewed directly in your browser, but the PBF files need to be decoded by a client that supports [Mapnik Vector Tiles].
+
+[Slippy Map]: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
+[Mapnik Vector Tiles]: https://github.com/mapbox/mapnik-vector-tile
+
+### Raster Tiles
+
+As we want to view the tiles as a client would, we will use a web map client. There are a few major choices available, but only one client that natively supports different tile projections as well as vector tiles in non-Web Mercator projection: OpenLayers.
+
+We can preview the raster tiles in our browser: [http://192.168.33.11:8080/raster.html](http://192.168.33.11:8080/raster.html).
+
+(Image of web viewer here)
+
+The rendering will look similar to `openstreetmap-carto`, with some modifications like [ArcticWebMap]. As you zoom in and pan, tilestrata will use Mapnik to render tiles on-the-fly and store the tiles in the `tilecache` directory; once rendered, the tiles will be re-used from the cache.
+
+(Image of Iqaluit here)
+
+As the tiles are rendered using Mapnik directly, we get to use the nice features of the Mapnik renderer such as smart label placement, patterns, and line casings.
+
+At this point, we have a raster tile server that is close to production ready. It could benefit from adding [ETag support][tilestrata-etag], Retina/high-DPI tiles, pre-rendering low-zoom tiles, and even adding an HTTP caching server in front of the tile server.
+
+[ArcticWebMap]: https://webmap.arcticconnect.org
+[tilestrata-etag]: https://github.com/naturalatlas/tilestrata-etag

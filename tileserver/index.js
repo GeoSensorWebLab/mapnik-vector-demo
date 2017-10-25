@@ -30,6 +30,6 @@ app.use(tilestrata.middleware({
     server: strata,
     prefix: '/'
 }));
-
+app.use('/', express.static('public'));
 
 app.listen(8080);
