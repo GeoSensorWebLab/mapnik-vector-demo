@@ -32,13 +32,14 @@
         baseRes,
         resolutions,
         awmTiles,
+        mousePositionControl,
         map;
 
     // Extent is half of the WGS84 Ellipsoid equatorial circumference
     extent = 20037508.342789244;
 
     minZoom = 0;
-    maxZoom = 18;
+    maxZoom = 22;
 
     // Resolution at zoom level 0 for ArcticWebMap
     baseRes = 156543.03392804097;
@@ -62,11 +63,23 @@
       })
     });
 
+    mousePositionControl = new ol.control.MousePosition({
+      coordinateFormat: ol.coordinate.createStringXY(4),
+      projection: 'EPSG:4326'
+    });
+
     map = new ol.Map({
+      controls: ol.control.defaults({
+        attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+          collapsible: false
+        })
+      }).extend([mousePositionControl]),
       target: 'map',
       layers: [awmTiles],
       pixelRatio: 8,
       view: new ol.View({
+        minZoom: minZoom,
+        maxZoom: maxZoom,
         projection: 'EPSG:3573',
         // center is in projected coordinates, not lon/lat
         center: ol.proj.transform(

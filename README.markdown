@@ -453,7 +453,7 @@ The rendering will look similar to `openstreetmap-carto`, with some modification
 
 As the tiles are rendered using Mapnik directly, we get to use the nice features of the Mapnik renderer such as smart label placement, patterns, and line casings.
 
-At this point, we have a raster tile server that is close to production ready. It could benefit from adding [ETag support][tilestrata-etag], Retina/high-DPI tiles, pre-rendering low-zoom tiles, and even adding an HTTP caching server in front of the tile server.
+At this point, we have a raster tile server that is close to production ready. It could benefit from adding [ETag support][tilestrata-etag], Retina/high-DPI tiles, compressing assets, pre-rendering low-zoom tiles, supporting HTTPS, supporting OSM diffs and tile expiration, and even adding an HTTP caching server in front of the tile server.
 
 [ArcticWebMap]: https://webmap.arcticconnect.org
 [tilestrata-etag]: https://github.com/naturalatlas/tilestrata-etag
