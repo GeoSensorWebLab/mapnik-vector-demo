@@ -101,19 +101,19 @@ Some of these changes will improve loading of data into PostgreSQL, while others
 
 ### Installing GDAL
 
-GDAL is a toolkit of libraries and applications for manipulating geospatial data. We will use it to import data from files into PostgreSQL tables. We can get a newer version of GDAL from the [UbuntuGIS PPA]:
+GDAL is a toolkit of libraries and applications for manipulating geospatial data. We will use it to import data from files into PostgreSQL tables. We can get a newer version of GDAL from the [UbuntuGIS PPA].
 
 ```sh
-$ sudo add-apt-repository ppa:ubuntugis/ppa
+$ sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
 $ sudo apt update
 $ sudo apt install -y gdal-bin libgdal20 libgdal-dev
 $ gdalinfo --version
-GDAL 2.1.3, released 2017/20/01
+GDAL 2.2.1, released 2017/06/23
 ```
 
 Make sure GDAL 2.1 or newer is installed, as mis-matches between GDAL versions can cause weird issues across clients/hosts. Newer versions of GDAL also have some performance improvements and support more formats.
 
-[UbuntuGIS PPA]: https://launchpad.net/~ubuntugis/+archive/ubuntu/ppa
+[UbuntuGIS PPA]: https://launchpad.net/~ubuntugis/+archive/ubuntu/ubuntugis-unstable
 
 ### Install PostGIS
 
