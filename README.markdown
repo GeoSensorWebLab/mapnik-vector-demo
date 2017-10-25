@@ -457,3 +457,30 @@ At this point, we have a raster tile server that is close to production ready. I
 
 [ArcticWebMap]: https://webmap.arcticconnect.org
 [tilestrata-etag]: https://github.com/naturalatlas/tilestrata-etag
+
+## Vector Tiles
+
+The real neat part of this tutorial is next, but it is also going to be a lot of work. With vector tiles, the raw vector data specified in the Mapnik layer definitions (`3573.xml`) is sent to the client instead of a server-rendered image. The client is then responsible for rendering this data.
+
+This means all the style information that Mapnik handles server-side for raster tiles must be ported into OpenLayers vector tile style definitions. And there is no [CartoCSS to OpenLayers converter][CartoCSS Parser], so it has to be done manually.
+
+I did some basic conversions of the `openstreetmap-carto` stylesheet, and it can be previewed with the Nunavut OSM data: [http://192.168.33.11:8080/vector.html](http://192.168.33.11:8080/vector.html).
+
+(Image of vector preview here)
+
+As you can see, there are a lot of layers not drawn (even though the vector data is there for OpenLayers). I figure it could take a week or more to convert CartoCSS to OpenLayers style definitions manually, and at that point it would be better to write a converter.
+
+There are some features that do not seem to be supported in the OpenLayers renderer, such as line casings and different line renderings for the two sides of a line. Text rendering and label placement is less flexible than Mapnik. This could potentially be added in the future.
+
+You also may notice that vector tiles on their first load aren't any faster than raster tiles, and vector tiles don't even need to be rendered on the server! This reveals the real limitation of a tile server: **the database**. If you were to run a `top` or `iotop` command while the vector tiles are being created by `tilestrata`, you would see a pause while `postgres` queries the OSM data.
+
+At this point you may be re-thinking whether vector tiles are worth it over raster tiles. What we do get from vector tiles is the ability to change the style on-the-fly in the client. This could be used to serve the same generic data and re-style it for different clients and purposes without having to generate different raster tiles for each purpose. Additionally, vector tile PBFs are small, smaller than the PNGs.
+
+(Table of size comparisons here)
+
+[CartoCSS Parser]: https://github.com/openlayers/openlayers/issues/826
+
+## Final Thoughts
+
+Generating vector tiles for custom projections can be done, with a little extra work. The lack of client support for custom projections is disappointing and hopefully will improve in the future. The work required to write style files for vector clients hopefully will also be easier in the future, with either a simpler language or even an interactive editor.
+
