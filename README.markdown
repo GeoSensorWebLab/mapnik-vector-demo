@@ -184,7 +184,6 @@ DROP TABLE
 $ sudo psql -U render osm -c "CREATE TABLE public.test (); DROP TABLE public.test"
 ERROR:  permission denied for schema public
 LINE 1: CREATE TABLE public.test (); DROP TABLE public.test
-
 ```
 
 This means `import` role can create DB objects, but `render` role cannot.
