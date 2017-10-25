@@ -275,6 +275,11 @@ $ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/1
 200KB
 $ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip
 44KB
+$ wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_land.zip
+3.3MB
+
+$ wget http://data.openstreetmapdata.com/land-polygons-split-4326.zip
+466MB
 
 $ wget http://download.geofabrik.de/north-america/canada/nunavut-latest.osm.pbf
 91MB
@@ -288,6 +293,8 @@ $ unzip -d ne_10m_glaciated_areas ne_10m_glaciated_areas.zip
 $ unzip -d ne_10m_lakes ne_10m_lakes.zip
 $ unzip -d ne_10m_lakes_north_america ne_10m_lakes_north_america.zip
 $ unzip -d ne_110m_admin_0_boundary_lines_land ne_110m_admin_0_boundary_lines_land.zip
+$ unzip -d ne_10m_land ne_10m_land.zip
+$ unzip land-polygons-split-4326.zip
 ```
 
 [GeoFabrik]: https://download.geofabrik.de
