@@ -244,8 +244,6 @@ $ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 $ sudo apt install -y nodejs
 $ node --version
 v8.7.0
-$ sudo chown -R $USER:$(id -gn $USER) /home/vagrant/.config
-$ sudo npm install --unsafe-perm -g tilestrata tilestrata-mapnik tilestrata-disk tilestrata-vtile tilestrata-headers mapnik
 ```
 
 [Tilestrata]: https://github.com/naturalatlas/tilestrata
