@@ -1,6 +1,6 @@
 (function() {
   // COLORS
-  const waterColor = '#b5d0d0';
+  const waterColor = '#aad3df';
   const landColor = '#f2efe9';
   const adminBoundaries = '#ac46ac';
 
