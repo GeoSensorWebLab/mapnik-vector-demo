@@ -11,20 +11,26 @@ var strata = tilestrata();
 
 // Define Layers
 // OSM Data on EPSG:3573
+var vtileSettings = {
+    bufferSize: 128,
+    metatile: 1,
+    xml: '/home/vagrant/carto-style/3573.xml'
+};
+
+var vTileRasterSettings = {
+    bufferSize: 128,
+    metatile: 1,
+    xml: '/home/vagrant/carto-style/3573.xml'
+};
+
 strata.layer('3573')
     .route('*.pbf')
         .use(headers({ 'Content-Encoding': 'gzip' }))
         .use(disk.cache({ dir: 'tilecache/3573' }))
-        .use(vtile({
-            bufferSize: 128,
-            xml: '/home/vagrant/carto-style/3573.xml'
-        }))
+        .use(vtile(vtileSettings))
     .route('*.png')
         .use(disk.cache({ dir: 'tilecache/3573' }))
-        .use(vtileraster({
-            bufferSize: 128,
-            xml: '/home/vagrant/carto-style/3573.xml'
-        }, {
+        .use(vtileraster(vTileRasterSettings, {
             tilesource: ['3573', '*.pbf']
         }))
         

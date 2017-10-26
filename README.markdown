@@ -478,6 +478,8 @@ At this point you may be re-thinking whether vector tiles are worth it over rast
 
 (Table of size comparisons here)
 
+This information was retrieved from the `tilestrata` profile page.
+
 [CartoCSS Parser]: https://github.com/openlayers/openlayers/issues/826
 
 ## Final Thoughts

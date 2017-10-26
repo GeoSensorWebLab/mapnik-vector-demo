@@ -61,6 +61,8 @@
 
     // Vector Tile Layer
     vectorTiles = new ol.layer.VectorTile({
+      renderBuffer: 128,
+      renderMode: 'vector',
       source: new ol.source.VectorTile({
         attributions: '&copy; OpenStreetMap contributors, ' +
           'Natural Earth, and openstreetmapdata.com',
@@ -105,6 +107,13 @@
       })
     });
 
+    var debugTiles = new ol.layer.Tile({
+      source: new ol.source.TileDebug({
+        projection: 'EPSG:3573',
+        tileGrid: vectorTiles.getSource().getTileGrid()
+      })
+    });
+
     // Left map - Vector
     var leftmousePositionControl = new ol.control.MousePosition({
       coordinateFormat: ol.coordinate.createStringXY(4),
@@ -119,14 +128,14 @@
         })
       }).extend([leftmousePositionControl]),
       target: 'map-left',
-      layers: [vectorTiles],
+      layers: [vectorTiles, debugTiles],
       view: new ol.View({
         projection: 'EPSG:3573',
         center: ol.proj.transform(
           [0, 90], 'EPSG:4326', 'EPSG:3573'
         ),
         maxZoom: maxZoom,
-        zoom: 4
+        zoom: 2
       })
     });
 
@@ -144,7 +153,7 @@
         })
       }).extend([rightmousePositionControl]),
       target: 'map-right',
-      layers: [rasterTiles],
+      layers: [rasterTiles, debugTiles],
       pixelRatio: 8,
       view: new ol.View({
         minZoom: minZoom,
@@ -154,7 +163,7 @@
         center: ol.proj.transform(
           [0, 90], 'EPSG:4326', 'EPSG:3573'
         ),
-        zoom: 4
+        zoom: 2
       })
     });
 
