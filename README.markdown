@@ -214,37 +214,23 @@ $ sudo pg_dropcluster 9.6 main --stop
 
 ### Install Mapnik
 
-Mapnik is the rendering library that takes stylesheet files and determines how to draw the data into tiles.
+Mapnik is the rendering library that takes stylesheet files and determines how to draw the data into tiles. We will install the package as well as its dependencies, as they are needed by node-mapnik in a later step.
 
 ```sh
-$ sudo apt install  libboost-filesystem-dev libboost-program-options-dev \
-  libboost-program-options1.58-dev libboost-program-options1.58.0 \
-  libboost-regex1.58-dev libboost-regex1.58.0 libboost-system-dev \
-  libbz2-dev libcairo2-dev \
-  libfreetype6-dev libgeos++-dev libharfbuzz-bin \
-  libharfbuzz-dev libharfbuzz-icu0 liblua5.2-dev \
-  lua5.2 libmapnik3.0 libmapnik-dev mapnik-utils
+$ sudo apt install -y libmapnik3.0 libmapnik-dev mapnik-utils
 $ mapnik-config --version
 3.0.13
 ```
 
-Next we need to install the Mapnik vector tile library.
-
-```sh
-$ sudo add-apt-repository ppa:jonathonf/gcc
-$ sudo apt-get update
-$ sudo apt install -y g++-7 gcc-7 libprotoc-dev libprotoc9v5 libprotobuf-dev protobuf-compiler mapnik-vector-tile
-```
-
 ### Install Node.js and Tilestrata
 
-For serving our raster and vector tiles, we will use [Tilestrata] which runs on Node.js. We can install version 8 for Ubuntu:
+For serving our raster and vector tiles, we will use [Tilestrata] which runs on Node.js. We will install version 6 for Ubuntu, as node-mapnik has pre-built binaries for Node v6.
 
 ```sh
-$ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+$ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 $ sudo apt install -y nodejs
 $ node --version
-v8.7.0
+v6.11.5
 ```
 
 [Tilestrata]: https://github.com/naturalatlas/tilestrata
@@ -381,6 +367,7 @@ $ ln -s /home/vagrant/data data
 And then generate the Mapnik XML files for rendering:
 
 ```sh
+$ sudo npm i -g npm
 $ npm install
 $ node_modules/carto/bin/carto 3573.mml > 3573.xml
 ```
