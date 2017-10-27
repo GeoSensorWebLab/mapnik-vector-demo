@@ -551,3 +551,7 @@ Generating vector tiles for custom projections can be done, with a little extra 
 There is potential for saving considerable database query time, as vector and raster layers have to query the database separately for the same PostGIS data in order to send/draw the tiles. It is possible to have the vector tiles query the database and store the geometries in the vector tile files, and then have the vector tile rasterizer re-use those stored tile files to draw the server-side raster tiles. I was able to get this working, but when drawing the raster tiles the Mapnik library would only use the context for a single tile and not the surrounding tiles to draw labels, meaning *every tile* had its own set of labels that were repeated across tiles or cut off at tile boundaries. This makes the map look broken and hard to read.
 
 I tried adjusting the vector tile rasterizer buffer sizes but they did not seem to have any effect. I also adjusted the vector tile and vector tile rasterizer metatile settings, but this caused OpenLayers to draw repeated tiles. Hopefully in the future there is a solution, so the PostGIS queries could be re-used.
+
+## License
+
+MIT License
