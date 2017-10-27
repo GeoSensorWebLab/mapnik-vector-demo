@@ -12,6 +12,7 @@
   "dependencies": {
     "cors": "^2.8.4",
     "express": "^4.16.2",
+    "mapnik": "^3.6.2",
     "tilestrata": "^2.1.2",
     "tilestrata-dependency": "^0.5.1",
     "tilestrata-disk": "^0.5.0",
