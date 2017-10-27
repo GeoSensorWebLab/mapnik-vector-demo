@@ -291,9 +291,7 @@ $ unzip land-polygons-split-4326.zip
 
 ### Importing OSM Data
 
-This import uses the local socket for Postgres, creates a NEW database import on the "osm" database, uses 500 MB for the import cache, uses 2 import processes (don't use too many as it might require too much RAM), imports only the columns set in the default osm2pgsql style file while additional tag data is stored in Postgres hstore, use multi-geometry postgres features, and print verbose status during the import.
-
-TODO: Update this paragraph
+This import uses the local socket for Postgres, creates a NEW database import on the "osm" database, uses 500 MB for the import cache, uses slim import mode to reduce RAM usage, uses 2 import processes (don't use too many as it might require too much RAM), imports only the columns set in the default osm2pgsql style file while additional tag data is stored in Postgres hstore, stores the coordinates as EPSG:4326 WGS84 longitude/latitude (instead of EPSG:3857 Web Mercator), use multi-geometry postgres features, and print verbose status during the import.
 
 ```sh
 $ sudo osm2pgsql --host /var/run/postgresql --create --database osm \
@@ -301,7 +299,7 @@ $ sudo osm2pgsql --host /var/run/postgresql --create --database osm \
   --style /vagrant/carto-style/openstreetmap-carto.style --hstore \
   --proj 4326 --latlong -G -v \
   ~/data/nunavut-latest.osm.pbf
-Osm2pgsql took 194s overall
+Osm2pgsql took 185s overall
 ```
 
 This is a small dataset so it will take a few minutes to import.
