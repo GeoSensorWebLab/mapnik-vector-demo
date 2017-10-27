@@ -55,6 +55,11 @@ Vagrant.configure("2") do |config|
     vb.memory = "8192"
     # Use 4 CPUs for more threading performance:
     vb.cpus = 4
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+
+    # Mark startup disk as an SSD. Comment out if the host drive isn't an
+    # SSD.
+    vb.customize ["storageattach", :id, "--storagectl", "SATA Controller", "--port", 0, "--nonrotational", "on"]
   end
   #
   # View the documentation for the provider you are using for more
