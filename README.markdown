@@ -464,6 +464,8 @@ The real neat part of this tutorial is next, but it is also going to be a lot of
 
 This means all the style information that Mapnik handles server-side for raster tiles must be ported into OpenLayers vector tile style definitions. And there is no [CartoCSS to OpenLayers converter][CartoCSS Parser], so it has to be done manually.
 
+[CartoCSS Parser]: https://github.com/openlayers/openlayers/issues/826
+
 I did some basic conversions of the `openstreetmap-carto` stylesheet, and it can be previewed with the Nunavut OSM data: [http://192.168.33.11:8080/vector.html](http://192.168.33.11:8080/vector.html).
 
 (Image of vector preview here)
@@ -474,15 +476,78 @@ There are some features that do not seem to be supported in the OpenLayers rende
 
 You also may notice that vector tiles on their first load aren't any faster than raster tiles, and vector tiles don't even need to be rendered on the server! This reveals the real limitation of a tile server: **the database**. If you were to run a `top` or `iotop` command while the vector tiles are being created by `tilestrata`, you would see a pause while `postgres` queries the OSM data.
 
-At this point you may be re-thinking whether vector tiles are worth it over raster tiles. What we do get from vector tiles is the ability to change the style on-the-fly in the client. This could be used to serve the same generic data and re-style it for different clients and purposes without having to generate different raster tiles for each purpose. Additionally, vector tile PBFs are small, smaller than the PNGs.
+At this point you may be re-thinking whether vector tiles are worth it over raster tiles; here are some things worth considering.
 
-(Table of size comparisons here)
+* Can change the style on-the-fly in the client
+    * This could be used to serve the same generic data and re-style it for different clients and purposes without having to generate different raster tiles for each purpose.
+    * Could also be used to change the localization of labels dynamically
+* When zooming to a new level, the previous zoom level geometry and labels can smoothly be scaled while the client is still downloading more detailed geometry from the tile server
+* Vector tile PBFs are small, usually smaller than the PNGs
 
-This information was retrieved from the `tilestrata` profile page.
+`tilestrata` has a profile page that lists the statistics for the tiles and routes, and it can be used to benchmark the performance in rendering times and sizes. I used that with a [split viewer](http://192.168.33.11:8080/split.html) to load the same regions (Iqaluit, NU for its urban geometries and Bylot Island, NU for its glacier geometries) as vector and raster tiles. Then I used the profile page info to compile the following tables.
 
-[CartoCSS Parser]: https://github.com/openlayers/openlayers/issues/826
+#### Sample Tile Sizes
+
+```
+Zoom Level        PBF         PNG       % Change
+1                5.97 kB     3.27 kB       83%
+2               11.28 kB     3.57 kB      216%
+3                7.50 kB     4.72 kB       59%
+4               11.06 kB    12.29 kB      -10%
+5                8.61 kB    16.94 kB      -49%
+6                6.50 kB    14.07 kB      -54%
+7                4.05 kB    11.97 kB      -66%
+8                2.94 kB     8.71 kB      -66%
+9                3.67 kB     7.70 kB      -52%
+10               1.94 kB     8.49 kB      -77%
+11               2.23 kB     9.31 kB      -76%
+12               3.62 kB    11.41 kB      -68%
+13               2.53 kB     9.54 kB      -73%
+14               1.59 kB     9.10 kB      -83%
+15               1.41 kB    10.60 kB      -87%
+16               1.36 kB    11.87 kB      -89%
+17               1.23 kB    13.03 kB      -91%
+18                874 B     10.89 kB      -92%
+19                712 B      8.31 kB      -91%
+20                634 B      7.41 kB      -91%
+21                489 B      5.00 kB      -90%
+22                436 B      3.63 kB      -88%
+```
+
+#### Sample Max Tile Sizes
+
+```
+Zoom Level        PBF         PNG       % Change
+1                7.99 kB    3.50 kB       128%
+2               16.23 kB   14.06 kB        15%
+3               32.89 kB   33.31 kB        -1%
+4               31.82 kB   40.58 kB       -22%
+5               21.00 kB   30.15 kB       -30%
+6               18.64 kB   38.50 kB       -52%
+7               14.45 kB   24.60 kB       -41%
+8               23.50 kB   29.79 kB       -21%
+9               42.71 kB   24.36 kB        75%
+10              26.16 kB   30.36 kB       -14%
+11              17.44 kB   27.24 kB       -36%
+12              17.27 kB   26.06 kB       -34%
+13              18.81 kB   42.22 kB       -55%
+14              24.98 kB   45.56 kB       -45%
+15              14.04 kB   57.00 kB       -75%
+16               6.19 kB   41.67 kB       -85%
+17               4.59 kB   50.30 kB       -91%
+18               2.21 kB   31.36 kB       -93%
+19               1.12 kB   18.05 kB       -94%
+20                882 B    13.60 kB       -94%
+21                658 B    11.19 kB       -94%
+22                658 B    10.75 kB       -94%
+```
+
+From the above tables we can see that generally the vector tile are larger at low zoom levels and smaller at higher zoom levels. This is logical as large complex geometries such as coastlines and land cover will require more vector data to describe them than a rendered raster image, but for higher zoom levels the geometries become simpler and raster tiles have a minimum size that cannot beat the smaller vector tile sizes.
 
 ## Final Thoughts
 
 Generating vector tiles for custom projections can be done, with a little extra work. The lack of client support for custom projections is disappointing and hopefully will improve in the future. The work required to write style files for vector clients hopefully will also be easier in the future, with either a simpler language or even an interactive editor.
 
+There is potential for saving considerable database query time, as vector and raster layers have to query the database separately for the same PostGIS data in order to send/draw the tiles. It is possible to have the vector tiles query the database and store the geometries in the vector tile files, and then have the vector tile rasterizer re-use those stored tile files to draw the server-side raster tiles. I was able to get this working, but when drawing the raster tiles the Mapnik library would only use the context for a single tile and not the surrounding tiles to draw labels, meaning *every tile* had its own set of labels that were repeated across tiles or cut off at tile boundaries. This makes the map look broken and hard to read.
+
+I tried adjusting the vector tile rasterizer buffer sizes but they did not seem to have any effect. I also adjusted the vector tile and vector tile rasterizer metatile settings, but this caused OpenLayers to draw repeated tiles. Hopefully in the future there is a solution, so the PostGIS queries could be re-used.
