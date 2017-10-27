@@ -1,40 +1,29 @@
-var express     = require('express');
-var cors        = require('cors');
-var tilestrata  = require('tilestrata');
-var headers     = require('tilestrata-headers');
-var disk        = require('tilestrata-disk');
-var vtile       = require('tilestrata-vtile');
-var vtileraster = require('tilestrata-vtile-raster');
+var express = require('express');
+var cors = require('cors');
+var tilestrata = require('tilestrata');
+var headers = require('tilestrata-headers');
+var disk = require('tilestrata-disk');
+var mapnik = require('tilestrata-mapnik');
+var vtile = require('tilestrata-vtile');
 
-var app    = express();
+var app = express();
 var strata = tilestrata();
 
 // Define Layers
 // OSM Data on EPSG:3573
-var vtileSettings = {
-    bufferSize: 128,
-    metatile: 1,
-    xml: '/home/vagrant/carto-style/3573.xml'
-};
-
-var vTileRasterSettings = {
-    bufferSize: 128,
-    metatile: 1,
-    xml: '/home/vagrant/carto-style/3573.xml'
-};
-
 strata.layer('3573')
+    .route('*.png')
+        .use(disk.cache({ dir: 'tilecache/3573' }))
+        .use(mapnik({
+            pathname: '/home/vagrant/carto-style/3573.xml'
+        }))
     .route('*.pbf')
         .use(headers({ 'Content-Encoding': 'gzip' }))
         .use(disk.cache({ dir: 'tilecache/3573' }))
-        .use(vtile(vtileSettings))
-    .route('*.png')
-        .use(disk.cache({ dir: 'tilecache/3573' }))
-        .use(vtileraster(vTileRasterSettings, {
-            tilesource: ['3573', '*.pbf']
-        }))
-        
-    ;
+        .use(vtile({
+            bufferSize: 128,
+            xml: '/home/vagrant/carto-style/3573.xml'
+        }));
 
 app.use(cors());
 app.use(tilestrata.middleware({
