@@ -54,7 +54,7 @@ Start by updating and upgrading the default libraries on the system.
 ```sh
 $ sudo apt update
 $ sudo apt upgrade -y
-$ sudo apt install -y zip unzip
+$ sudo apt install -y unzip
 ```
 
 [PostgreSQL]: https://www.postgresql.org
