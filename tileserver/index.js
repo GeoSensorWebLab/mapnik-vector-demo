@@ -1,12 +1,12 @@
-var express = require('express');
-var cors = require('cors');
-var tilestrata = require('tilestrata');
-var headers = require('tilestrata-headers');
-var disk = require('tilestrata-disk');
-var mapnik = require('tilestrata-mapnik');
-var vtile = require('tilestrata-vtile');
+var express     = require('express');
+var cors        = require('cors');
+var tilestrata  = require('tilestrata');
+var headers     = require('tilestrata-headers');
+var disk        = require('tilestrata-disk');
+var mapnik      = require('tilestrata-mapnik');
+var vtile       = require('tilestrata-vtile');
 
-var app = express();
+var app    = express();
 var strata = tilestrata();
 
 // Define Layers
