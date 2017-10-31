@@ -1,20 +1,27 @@
 # Mapnik Vector Tiles with Custom Projections
 
-In this guide I will show you how to deploy a small web map tile server on a virtual machine. It will serve up tiles in projections that are not the default Web Mercator projection. An OpenLayers client will be used to view the final result.
+In this guide I will show you how to deploy a small web map tile server on a virtual machine. It will serve up tiles in projections that are not Web Mercator projection. An OpenLayers client will be used to view the final result.
 
 Here is a preview of the region we will set up in this tutorial:
 
-(Image of Nunavut here)
+![Nunavut, Canada](images/3573.jpg)
+
+*Above: Northern Canada in EPSG:3573 projection. Data from [Natural Earth Data]. Drawn in [QGIS].*
+
+[Natural Earth Data]: http://www.naturalearthdata.com
+[QGIS]: http://qgis.org/en/site/
 
 ## Background
 
 A majority of the web map providers online all provide tiles in the same map projection: [Web Mercator]. This projection flattens the ellipsoidal Earth into a flat plane, which is then sliced up into tiles for map clients. Web Mercator uses some simplification of formulas to generate its coordinates compared to the standard Mercator projection. The simplification is easier to code and process, but causes significant distortion and inaccuracy as the coordinates move away from the equator. The distortion is so great that the top and bottom of Web Mercator are cut off at 85.05 degrees.
 
-(Image of Greenland/Africa size comparison in Mercator)
+![Web Mercator Comparison](images/3857-comparison.png)
+
+*Above: A comparison of distortion in the Web Mercator projection. Pixel areas measured using Adobe Photoshop. Land area measurements are from Natural Earth Data polygons and are not the exact true areas of the regions.*
 
 For many users, these inaccuracies and distortions make Mercator and Web Mercator projections a poor choice. Fortunately there are [thousands of standardized map projections][epsg.io] covering the entire planet, allowing you to choose one for your region of interest.
 
-If custom projections are better suited for specialized areas of interest, why wouldn't you always use them? First of all is that Web Mercator has very broad server and client library support. If you want to integrate multiple libraries, Web Mercator is something you can rely on both libraries supporting. Secondly is that for a large proportion of people, Web Mercator is good enough for understanding generally where places are located.
+So if custom projections are better suited for specialized areas of interest, why wouldn't you always use them? First of all is that Web Mercator has very broad server and client library support. If you want to integrate multiple libraries, Web Mercator is something you can rely on both libraries supporting. Secondly is that for a large proportion of people, Web Mercator is good enough for understanding generally where places are located.
 
 [Web Mercator]: https://en.wikipedia.org/wiki/Web_Mercator
 [epsg.io]: https://epsg.io
@@ -285,7 +292,6 @@ $ unzip land-polygons-split-4326.zip
 ```
 
 [GeoFabrik]: https://download.geofabrik.de
-[Natural Earth Data]: http://www.naturalearthdata.com/
 [Nunavut]: https://download.geofabrik.de/north-america/canada/nunavut.html
 [OSM Planet]: https://planet.osm.org
 
@@ -340,7 +346,7 @@ This will take a few seconds on this small extract, or for a planet file an enti
 
 ## Set Up the Stylesheet
 
-I have created a fork of the openstreetmap-carto stylesheet in this repository that is optimized for this tutorial. As this tutorial focuses on a different region than the general OSM site, I cut out some unused stuff.
+I have created a fork of the [openstreetmap-carto] stylesheet in this repository that is optimized for this tutorial. As this tutorial focuses on a different region than the general OSM site, I cut out some unused stuff.
 
 Start by copying the stylesheet to the home directory.
 
@@ -372,11 +378,11 @@ $ node_modules/carto/bin/carto 3573.mml > 3573.xml
 
 This `3573.mml` file is a modification of the `openstreetmap-carto` stylesheet where the projection has been changed, some layers have been removed (e.g. Antarctica), and the shapefiles modified to versions that have been re-projected. We haven't done the reprojection yet, and that is the next step.
 
+[openstreetmap-carto]: https://github.com/gravitystorm/openstreetmap-carto
+
 ### Process the Shapefiles
 
-By default, the shapefiles for the `openstreetmap-carto` style are in either EPSG:3857 (Web Mercator) or EPSG:4326 (WGS84 CRS). It is possible to use these projections directly, and Mapnik will automatically re-project the files to the correct projection. This can cause some odd rendering errors though, as seen below:
-
-(Add image of polygon borders from ArcticWebMap)
+By default, the shapefiles for the `openstreetmap-carto` style are in either EPSG:3857 (Web Mercator) or EPSG:4326 (WGS84 CRS). It is possible to use these projections directly, and Mapnik will automatically re-project the files to the correct projection. This can cause some odd rendering errors.
 
 This is caused by straight lines between two points being drawn differently in different projections. In EPSG:3857 two parallel lines of different lengths will line up, and there will be no gap. But in EPSG:3573 the parallel lines diverge in the polar projection, causing a gap between the lines to be visible.
 
@@ -430,11 +436,11 @@ As we want to view the tiles as a client would, we will use a web map client. Th
 
 We can preview the raster tiles in our browser: [http://192.168.33.11:8080/raster.html](http://192.168.33.11:8080/raster.html).
 
-(Image of web viewer here)
+![EPSG:3573 Raster Preview](images/3573-raster-preview.jpg)
 
 The rendering will look similar to `openstreetmap-carto`, with some modifications like [ArcticWebMap]. As you zoom in and pan, tilestrata will use Mapnik to render tiles on-the-fly and store the tiles in the `tilecache` directory; once rendered, the tiles will be re-used from the cache.
 
-(Image of Iqaluit here)
+![EPSG:3573 Raster Preview of Iqaluit](images/3573-iqaluit-preview.jpg)
 
 As the tiles are rendered using Mapnik directly, we get to use the nice features of the Mapnik renderer such as smart label placement, patterns, and line casings.
 
@@ -453,7 +459,9 @@ This means all the style information that Mapnik handles server-side for raster 
 
 I did some basic conversions of the `openstreetmap-carto` stylesheet, and it can be previewed with the Nunavut OSM data: [http://192.168.33.11:8080/vector.html](http://192.168.33.11:8080/vector.html).
 
-(Image of vector preview here)
+![EPSG:3573 Vector Preview](images/3573-vector-preview.jpg)
+
+![EPSG:3573 Vector Preview of Iqaluit](images/3573-vector-iqaluit.jpg)
 
 As you can see, there are a lot of layers not drawn (even though the vector data is there for OpenLayers). I figure it could take a week or more to convert CartoCSS to OpenLayers style definitions manually, and at that point it would be better to write a converter.
 
